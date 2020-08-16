@@ -1,0 +1,421 @@
+#!/bin/bash
+
+
+function looping {	
+    for (( i = 0; i < 100; i++ )); 
+    do
+				    while [[ $cname ==  ${colarray[i]} ]]
+				    do
+				    echo this column already exist pleasy try again
+				    read cname
+				    looping
+				    done
+				    done
+    
+}
+
+#----------------------------------------------------------------
+
+function creatingNewDB {
+echo Kindlly Enter Your New DB Name  
+z=1
+while [ $z == 1 ]
+	do  
+	read name
+		if [[ $name ]] && [ $name -eq $name 2>/dev/null ] 
+		then 
+			echo Invalid Name please try again  
+			
+		elif [ -d ./DBnames/$name ]     #check
+		then 
+			echo The DB Already exist please try again
+		else 
+		
+			mkdir ./DBnames/$name
+			z=0 
+			echo Successfully $name is created 
+		 fi
+	done 
+sleep 1.5
+clear
+MainMenu
+}
+
+#--------------------------------------------------------------------------
+
+function DeleteDB { 
+if [ -n "$(ls -A ./DBnames 2>/dev/null)" ]
+	then
+		
+		echo Existing DBs 
+		ls ./DBnames
+		q=1
+		while [ $q == 1 ]
+		do
+			echo please enter the DB name to be deleted
+			read x 
+			if [ -d ./DBnames/$x ]
+			then
+				rm -r ./DBnames/$x
+				echo Successfully $x is deleted 
+				q=0
+			else 
+			echo There is no such DB with this name
+			fi
+		done
+	else
+		echo You Do not have any DBs yet 
+	fi	
+sleep 1.5
+clear 
+MainMenu
+} 
+#--------------------------------------------------------------------------
+
+function ListDB {
+    
+	if [ -n "$(ls -A ./DBnames 2>/dev/null)" ]
+	then
+		
+		echo Existing DBs 
+		ls ./DBnames
+		
+	else
+		echo You Do not have any DBs yet 
+	fi
+sleep 1.5
+clear 
+MainMenu
+} 
+#--------------------------------------------------------------------------
+
+function openDB {
+if [ -n "$(ls -A ./DBnames 2>/dev/null)" ]
+	then
+		
+		echo Existing DBs 
+		ls ./DBnames
+		t=1
+		while [ $t == 1 ]
+		do
+			echo please enter the DB name to be Opened
+			read x 
+			if [ -d ./DBnames/$x ]
+			then
+				cd ./DBnames/$x
+				clear
+				echo Now you are working with $x DB
+				Script2 
+				t=0
+			else 
+			echo There is no such DB with this name
+			fi
+		done
+	else
+		echo You Do not have any DBs yet 
+	fi
+sleep 1.5
+clear 
+MainMenu	
+} 
+#--------------------------------------------------------------------------			
+			
+			
+function creatingNewtb {
+
+echo Kindly enter your table name
+z=1
+while [ $z == 1 ]
+	do  
+	read tablename
+		if [[ $tablename ]] && [ $tablename -eq $tablename 2>/dev/null ] 
+		then 
+			echo Invalid Name please try again  
+			
+		elif [ -f $tablename ]     
+		then 
+			echo The Table Already exist 
+		else 
+			clear
+			echo Now you are working with $tablename table
+		        echo Note The first cloumn will be your PK
+		        echo Please enter the number of columns
+		        read c
+		        
+		        until [[ $c ]] && [ $c -eq $c 2>/dev/null ] 
+		        do
+			    echo Invalid Number please try again  
+			    read c
+		    	done
+		        touch $tablename 
+		        count=1 
+		        echo Now you are setting the names and datypes of column in $tablename table
+		        while [ $count -le $c ]
+		        do
+		       
+				echo Please enter the name of column $count
+				read cname
+				while [[ $cname ]] && [ $cname -eq $cname 2>/dev/null ] 
+	        	do
+			    echo Invalid Name please try again 
+			    read cname
+				done
+				for (( i = 0; i < 100; i++ )); do
+				    while [[ $cname ==  ${colarray[i]} ]]
+				    do
+				    echo This column already exist please try again
+				    read cname
+				    looping
+				    done
+				done
+				colarray+=($cname)
+		    		echo what datatype are you going to store 					in $cname
+				select v in Integer String 
+				do
+				   case $v in 
+					Integer) ctype="Integer"; break;;
+					String) ctype="String"; break;;
+					*) echo Wrong Choice ;; 
+				    esac
+			     	done
+			     	if [ $count -lt $c ]
+			     	then 
+			     		Names=$Names$cname"	|	"
+			     	 	Data+="\n"$cname":"$ctype
+			     	
+			     	else
+			     	
+			     		Names=$Names$cname
+			     		Data+="\n"$cname":"$ctype
+			     	fi
+			   ((count++))	
+				
+		        done
+		     touch $tablename
+		     echo -e $Data >> $tablename
+		     echo -e $Names >> $tablename
+		     echo Table Created Successfully
+		     z=0
+		     Names=""
+		     Data=""
+		     unset colarray[@]
+		fi
+	done 
+	sleep 1.5
+	clear
+	Script2
+
+
+}
+#--------------------------------------------------------------------------
+
+
+
+function Deletetb {
+
+if [ -n "$(ls -A . 2>/dev/null)" ]
+	then
+		
+		echo Existing Tables 
+		ls .
+		q=1
+		while [ $q == 1 ]
+		do
+			echo please enter the Table name to be deleted
+			read tablename
+			if [ -f $tablename ]
+			then
+				rm  $tablename
+				echo Successfully $tablename is deleted 
+				q=0
+			else 
+			echo There is no such table with this name
+			fi
+		done
+	else
+	    echo You Do not have any Tables yet 
+	fi
+sleep 1.5
+clear 
+Script2	
+
+}
+
+#--------------------------------------------------------------------------
+
+
+function inserttb {
+
+if [ -n "$(ls -A . 2>/dev/null)" ]
+then 
+	echo Existing Tables
+	ls .
+	w=1
+	while [ $w == 1 ]
+	do
+		echo Kindly Enter Table name to insert into
+		read tablename 
+		if [ -f $tablename ]
+		then 
+		echo Now you are going to insert into $tablename table 
+		fileds=$(awk 'BEGIN{FS="|"} END{print NF}' $tablename)
+	    let fileds=$fileds+1
+		i=2
+			while [ $i -le $fileds ]
+			do
+				cname=$(awk 'BEGIN{FS=":"}{ if(NR=='$i') print $1}' $tablename)
+				ctype=$(awk 'BEGIN{FS=":"}{ if(NR=='$i') print $2}' $tablename)
+				
+				echo Enter the value of Coulmn $cname and its data type is $ctype 
+				read entry
+				if [ $ctype == "String" ]
+				then 	
+				while [[ $entry ]] && [ $entry -eq $entry 2>/dev/null ]  
+				do
+				echo Invaid entry
+				echo Enter the value of Coulmn $cname and its data type is $ctype 
+				read entry 
+				done 
+				fi
+				if [ $ctype == "Integer" ]
+				then 	
+				until [[ $entry ]] && [ $entry -eq $entry 2>/dev/null ]  
+				do
+				echo Invaid entry
+				echo Enter the value of Coulmn $cname and its data type is $ctype 
+				read entry 
+				done 
+				fi
+				if [ $i == $fileds ]
+				then
+					new=$new$entry
+					 
+					
+				else
+					new=$new$entry"  |	"
+				fi
+			
+			((i++))
+			
+			
+			done
+		echo $new >> $tablename
+	#	echo -e "\n" >> $tablename
+		echo your record is saved successfully 
+		w=0
+		else 
+			echo There is no such table with this name
+		fi
+	done
+new=""
+
+else
+	echo You Do not have any Tables yet 
+fi
+
+sleep 1.5
+clear 
+Script2	
+
+
+}
+
+
+#--------------------------------------------------------------------------
+
+function Listtb {
+
+if [ -n "$(ls -A . 2>/dev/null)" ]
+	then
+		
+		echo Existing Tables 
+		ls .
+		
+	else
+		echo You Do not have any Tables yet 
+	fi
+sleep 1.5
+clear 
+Script2
+
+}
+#--------------------------------------------------------------------------
+
+
+function Script2 {
+
+echo 1 Create New Table
+echo 2 Delete Table
+echo 3 Insert into table
+echo 4 List Existing table
+echo 5 Back to Main Menu
+
+while true
+do
+
+	echo Enter your choice
+	read tb
+
+	case $tb in 
+
+		1) creatingNewtb ;;
+
+		2) Deletetb ;;
+
+		3) inserttb;; 
+
+		4) Listtb ;;
+
+		5) cd -
+		clear
+		MainMenu ;;
+
+		*) echo Wrong Choic Please Enter a right number ;;
+
+	esac
+
+
+done
+
+
+}
+
+
+function MainMenu {
+
+echo           Main Menu
+
+echo 1 Create New DB
+echo 2 Delete DB
+echo 3 Open DB
+echo 4 List Existing DBs
+echo 5 Exit
+
+while true
+do
+
+	echo Enter your choice
+	read hpv 
+	
+	case $hpv in 
+
+		1) creatingNewDB ;;
+
+		2) DeleteDB ;;
+
+		3) openDB;; 
+
+		4) ListDB;;
+
+		5) exit   ;;
+
+		*) echo Wrong Choic Please Enter a right number ;;
+	esac
+
+
+done 
+}
+
+mkdir DBnames
+MainMenu
+
