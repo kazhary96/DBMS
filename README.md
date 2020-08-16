@@ -1,2 +1,2 @@
 # DBMS
-Database Managament system- with bash shell script
+Database Management system- with bash shell script
